@@ -30,7 +30,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         """ 
         Read in config and perform any initial setup here 
         """
-        gamelib.debug_write('Configuring your custom algo strategy...')
+        gamelib.debug_write('Configuring your custom algo strategy 2...')
         self.config = config
         global FILTER, ENCRYPTOR, DESTRUCTOR, PING, EMP, SCRAMBLER
         FILTER = config["unitInformation"][0]["shorthand"]
@@ -50,7 +50,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         game engine.
         """
         game_state = gamelib.GameState(self.config, turn_state)
-        gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
+        gamelib.debug_write('Performing turn {} of your custom algo strategy2'.format(game_state.turn_number))
         #game_state.suppress_warnings(True)  #Uncomment this line to suppress warnings.
 
         self.start_strategy(game_state)
@@ -84,7 +84,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         
         for x in range(7,21):
-            if game_state.can_spawn(FILTER, [x, 13]) and game_state.contains_stationary_unit([x,14]):
+            if game_state.can_spawn(FILTER, [x, 13]) and not game_state.contains_stationary_unit([x,14]):
                 game_state.attempt_spawn(FILTER, [x,13])
     
     def build_defences(self, game_state):
@@ -112,22 +112,21 @@ class AlgoStrategy(gamelib.AlgoCore):
             if game_state.can_spawn(ENCRYPTOR, location):
                 game_state.attempt_spawn(ENCRYPTOR, location)
 
-
-	for x in range(27,5,-1){
-	    if game_state.can_spawn(FILTER, [x,13]):
-		game_state.attemt_spawn(FILTER, [x,13])
-	}
-
-	x = 6
-	y = 10
+        for x in range(27,5,-1):
+            #gamelib.debug_write('that one strange for loop...')
+            if game_state.can_spawn(FILTER, [x,13]):
+                game_state.attempt_spawn(FILTER, [x,13])
+        x = 6
+        y = 10
 	
-	while game_state.get_resources(game_state.CORES) >= game_state.type_cost(ENCRYPTOR):
-	    if game_state.can_spawn(ENCRYPTOR, [x,y]:
-		game_state.attemt_spawn(ENCRYPTOR, [x,y])
-	    x++
-	    if game_state.can_spawn(ENCYPTOR,[x,y]):
-		game_state.attemt_spawn(ENCRYPTOR,[x,y])
-	    y++
+        while game_state.get_resource(game_state.CORES) >= game_state.type_cost(ENCRYPTOR) and y > 6:
+            #gamelib.debug_write('resources for ENCRYPRORS...')
+            if game_state.can_spawn(ENCRYPTOR, [x,y]):
+                game_state.attempt_spawn(ENCRYPTOR, [x,y])
+            x += 1
+            if game_state.can_spawn(ENCRYPTOR,[x,y]):
+                game_state.attempt_spawn(ENCRYPTOR,[x,y])
+            y -= 1
         """
         Lastly lets build encryptors in random locations. Normally building 
         randomly is a bad idea but we'll leave it to you to figure out better 
@@ -182,12 +181,16 @@ class AlgoStrategy(gamelib.AlgoCore):
         information units in the same location.
         """
 
-	if number_affordable(SCRAMBLER) > 2 and game_state.can_spawn(SCRAMBLER, [14,0])
-	    game_state.attemt_spawn(SCRAMBLER,[14,0]
-
-	while game_state.get_resources(game_state.BITS) >= game_state.type_cost(PING):
+        if game_state.number_affordable(SCRAMBLER) > 2 and game_state.can_spawn(SCRAMBLER, [14,0]):
+	        game_state.attempt_spawn(SCRAMBLER,[14,0])
+            
+        while game_state.get_resource(game_state.BITS) >= game_state.type_cost(PING):
+            #gamelib.debug_write('resources for PINGS...')
             if game_state.can_spawn(PING, [14, 0]):
-        	game_state.attempt_spawn(PING, [14,0])
+        	    game_state.attempt_spawn(PING, [14,0])
+            else:
+                gamelib.debug_write('{} Bits cant spawn PINGS at [14,0]'.format(game_state.turn_number))
+                return
 
         """
         NOTE: the locations we used above to spawn information units may become 

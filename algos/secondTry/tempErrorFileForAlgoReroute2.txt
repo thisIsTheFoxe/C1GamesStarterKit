@@ -1,0 +1,25 @@
+---------------- Starting Your Algo --------------------
+Configuring your custom algo strategy 2...
+Performing turn 0 of your custom algo strategy2
+Performing turn 1 of your custom algo strategy2
+Performing turn 2 of your custom algo strategy2
+Performing turn 3 of your custom algo strategy2
+Performing turn 4 of your custom algo strategy2
+Traceback (most recent call last):
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/algo_strategy.py", line 237, in <module>
+    algo.start()
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/gamelib/algocore.py", line 61, in start
+    self.on_turn(game_state_string)
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/algo_strategy.py", line 56, in on_turn
+    self.start_strategy(game_state)
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/algo_strategy.py", line 78, in start_strategy
+    self.deploy_attackers(game_state)
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/algo_strategy.py", line 187, in deploy_attackers
+    if game_state.can_spawn(PING, [14, 0]):
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/gamelib/game_state.py", line 276, in can_spawn
+    on_edge = location in (self.game_map.get_edge_locations(self.game_map.BOTTOM_LEFT) + self.game_map.get_edge_locations(self.game_map.BOTTOM_RIGHT))
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/gamelib/game_map.py", line 123, in get_edge_locations
+    edges = self.get_edges()
+  File "/Users/henrikstorch/Documents/GitHub/C1GamesStarterKit/algos/secondTry/gamelib/game_map.py", line 147, in get_edges
+    bottom_left.append([int(x), int(y)])
+KeyboardInterrupt
