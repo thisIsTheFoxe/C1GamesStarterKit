@@ -32,14 +32,14 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         gamelib.debug_write('Configuring your custom algo strategy 2...')
         self.config = config
-        global FILTER, ENCRYPTOR, DESTRUCTOR, PING, EMP, SCRAMBLER
+        global FILTER, ENCRYPTOR, DESTRUCTOR, PING, EMP, SCRAMBLER, RIGHT_SIDE_EMERGENCY
         FILTER = config["unitInformation"][0]["shorthand"]
         ENCRYPTOR = config["unitInformation"][1]["shorthand"]
         DESTRUCTOR = config["unitInformation"][2]["shorthand"]
         PING = config["unitInformation"][3]["shorthand"]
         EMP = config["unitInformation"][4]["shorthand"]
         SCRAMBLER = config["unitInformation"][5]["shorthand"]
-
+        RIGHT_SIDE_EMERGENCY = 0
 
     def on_turn(self, turn_state):
         """
@@ -49,7 +49,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         unit deployments, and transmitting your intended deployments to the
         game engine.
         """
-        game_state = gamelib.GameState(self.config, turn_state)
+        game_state = gamelib.AdvancedGameState(self.config, turn_state)
         gamelib.debug_write('Performing turn {} of your custom algo strategy2'.format(game_state.turn_number))
         #game_state.suppress_warnings(True)  #Uncomment this line to suppress warnings.
 
@@ -86,27 +86,32 @@ class AlgoStrategy(gamelib.AlgoCore):
         for x in range(7,21):
             if game_state.can_spawn(FILTER, [x, 13]) and not game_state.contains_stationary_unit([x,14]):
                 game_state.attempt_spawn(FILTER, [x,13])
+                if game_state.turn_number != 0 and x > 17:
+                    RIGHT_SIDE_EMERGENCY = 1
     
     def build_defences(self, game_state):
         #Add some detrructors l and r
         destr = [[5,12],[23,12]]
-        for location in destr:
-            if game_state.can_spawn(DESTRUCTOR, location):
-                game_state.attempt_spawn(DESTRUCTOR, location)
-        """
-        First lets protect ourselves a little with destructors:
-        
-        firewall_locations = [[0, 13], [27, 13]]
-        for location in firewall_locations:
-            if game_state.can_spawn(DESTRUCTOR, location):
-                game_state.attempt_spawn(DESTRUCTOR, location)
+        destr2 = [[4,12],[24,12]]
+        for ix in range(0,len(destr)):
+            if game_state.can_spawn(DESTRUCTOR, destr[ix]):
+                game_state.attempt_spawn(DESTRUCTOR, destr[ix])
+                if game_state.turn_number > 0:
+                    if game_state.can_spawn(DESTRUCTOR, destr2[ix]):
+                        game_state.attempt_spawn(DESTRUCTOR, destr2[ix])
 
+        #FIXME: rigt coords
+        if RIGHT_SIDE_EMERGENCY:
+            if game_state.can_spawn(ENCRYPTOR, [23,12]):
+                game_state.attempt_spawn(ENCRYPTOR, [23,12])
+                                    
+#if game_state.turn_number >= 3 and game_state.enemy_health == 30 :
+        #algo not effective enough.. try sth. else
         
-        Then lets boost our offense by building some encryptors to shield 
-        our information units. Lets put them near the front because the 
-        shields decay over time, so shields closer to the action 
-        are more effective.
-        """
+        #FIXME: rigt coords
+        if len(game_state.get_attackers([2,13], 0)) > 1 and game_state.can_spawn(EMP, [4,10]):
+                game_state.attempt_spawn(EMP, [4,10])
+
         firewall_locations = [[5, 11],[6,11]]
         for location in firewall_locations:
             if game_state.can_spawn(ENCRYPTOR, location):
@@ -114,7 +119,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
         for x in range(27,5,-1):
             #gamelib.debug_write('that one strange for loop...')
-            if game_state.can_spawn(FILTER, [x,13]):
+            if game_state.can_spawn(FILTER, [x,13]) and not game_state.contains_stationary_unit([x,14]):
                 game_state.attempt_spawn(FILTER, [x,13])
         x = 6
         y = 10
@@ -173,15 +178,12 @@ class AlgoStrategy(gamelib.AlgoCore):
         First lets deploy an EMP long range unit to destroy firewalls for us.
         """
         
-        if game_state.turn_number == 0 and game_state.can_spawn(SCRAMBLER, [25, 11]):
+        if (game_state.turn_number == 0 and game_state.can_spawn(SCRAMBLER, [25, 11])) or RIGHT_SIDE_EMERGENCY:
             game_state.attempt_spawn(SCRAMBLER, [25, 11])
         
-        """
-        Now lets send out 3 Pings to hopefully score, we can spawn multiple 
-        information units in the same location.
-        """
-
-        if game_state.number_affordable(SCRAMBLER) > 2 and game_state.can_spawn(SCRAMBLER, [14,0]):
+        
+        
+        if game_state.number_affordable(PING) > 4 and game_state.can_spawn(SCRAMBLER, [14,0]):
 	        game_state.attempt_spawn(SCRAMBLER,[14,0])
             
         while game_state.get_resource(game_state.BITS) >= game_state.type_cost(PING):
