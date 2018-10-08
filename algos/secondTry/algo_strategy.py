@@ -57,6 +57,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
         game_state.submit_turn()
 
+    
     """
     NOTE: All the methods after this point are part of the sample starter-algo
     strategy and can safey be replaced for your custom algo.
@@ -88,35 +89,41 @@ class AlgoStrategy(gamelib.AlgoCore):
                 game_state.attempt_spawn(FILTER, [x,13])
                 if game_state.turn_number != 0 and x > 17:
                     RIGHT_SIDE_EMERGENCY = 1
+#add 21,11 DEF?
+                    if game_state.can_spawn(DESTRUCTOR, [23,11]):
+                        game_state.attempt_spawn(DESTRUCTOR, [23,11])
+                    if game_state.can_spawn(DESTRUCTOR, [21,11]):
+                        game_state.attempt_spawn(DESTRUCTOR, [21,11])
+
     
     def build_defences(self, game_state):
         #Add some detrructors l and r
-        destr = [[5,12],[23,12]]
-        destr2 = [[4,12],[24,12]]
+        destr = [[5,12],[23,12],[15,6]]
+        destr2 = [[4,12],[24,12],[14,6]]
         for ix in range(0,len(destr)):
             if game_state.can_spawn(DESTRUCTOR, destr[ix]):
                 game_state.attempt_spawn(DESTRUCTOR, destr[ix])
                 if game_state.turn_number > 0:
                     if game_state.can_spawn(DESTRUCTOR, destr2[ix]):
                         game_state.attempt_spawn(DESTRUCTOR, destr2[ix])
-
-        #fixme: rigt coords
-        if RIGHT_SIDE_EMERGENCY:
-            if game_state.can_spawn(DESTRUCTOR, [23,11]):
-                game_state.attempt_spawn(DESTRUCTOR, [23,11])
-                                    
+    
 #if game_state.turn_number >= 3 and game_state.enemy_health == 30 :
         #algo not effective enough.. try sth. else
         
-        #fixme: rigt coords
-        if len(game_state.get_attackers([2,13], 0)) > 1 and game_state.can_spawn(EMP, [3,10]):
-                game_state.attempt_spawn(EMP, [3,10])
+        if len(game_state.get_attackers([2,13], 0)) > 1 and game_state.can_spawn(EMP, [6,7]):
+                game_state.attempt_spawn(EMP, [6,7])
 
-        firewall_locations = [[5, 11],[6,11]]
+        firewall_locations = [[5, 11],[6,11],[2,12]]
         for location in firewall_locations:
             if game_state.can_spawn(ENCRYPTOR, location):
                 game_state.attempt_spawn(ENCRYPTOR, location)
+        
+        if game_state.can_spawn(DESTRUCTOR, [1,12]):
+            game_state.attempt_spawn(DESTRUCTOR, [1,12])
 
+        if (game_state.get_resource(game_state.CORES) <= 0):
+            return
+        
         for x in range(27,5,-1):
             #gamelib.debug_write('that one strange for loop...')
             if game_state.can_spawn(FILTER, [x,13]) and not game_state.contains_stationary_unit([x,14]):
@@ -132,18 +139,31 @@ class AlgoStrategy(gamelib.AlgoCore):
             if game_state.can_spawn(ENCRYPTOR,[x,y]):
                 game_state.attempt_spawn(ENCRYPTOR,[x,y])
             y -= 1
-                
-                
+        
+        all_locations = []
+        for x in range(6,game_state.ARENA_SIZE):
+            for y in range(math.floor(game_state.ARENA_SIZE / 2)):
+                if (game_state.game_map.in_arena_bounds([x, y])) and [x,y] not in game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_LEFT):
+                    all_locations.append([x, y])
+
+        possible_locations = self.filter_blocked_locations(all_locations, game_state)
+        
+        while game_state.get_resource(game_state.CORES) >= game_state.type_cost(DESTRUCTOR) and len(possible_locations) > 3:
+            location_index = random.randint(0, len(possible_locations) - 1)
+            if game_state.can_spawn(DESTRUCTOR, possible_locations[location_index]):
+                game_state.attempt_spawn(DESTRUCTOR,possible_locations[location_index])
+
+
+
     def deploy_attackers(self, game_state):
         
-        if (game_state.turn_number == 0 and game_state.can_spawn(SCRAMBLER, [25, 11])) or RIGHT_SIDE_EMERGENCY:
-            game_state.attempt_spawn(SCRAMBLER, [25, 11])
+        if (game_state.turn_number == 0 and game_state.can_spawn(EMP, [25, 11])) or RIGHT_SIDE_EMERGENCY:
+            game_state.attempt_spawn(EMP, [25, 11])
         
-        
-        
-        if game_state.number_affordable(PING) > 4 and game_state.can_spawn(SCRAMBLER, [14,0]):
-	        game_state.attempt_spawn(SCRAMBLER,[14,0])
-            
+        """
+        if game_state.number_affordable(PING) > 4 and game_state.can_spawn(SCRAMBLER, [5,8]):
+	        game_state.attempt_spawn(SCRAMBLER,[5,8])
+        """
         while game_state.get_resource(game_state.BITS) >= game_state.type_cost(PING):
             #gamelib.debug_write('resources for PINGS...')
             if game_state.can_spawn(PING, [14, 0]):
