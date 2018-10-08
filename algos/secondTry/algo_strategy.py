@@ -66,7 +66,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
             Build the main wall for defense and add encryprors for the first attacs.
         """
-        self.build_main_wall(game_state)
+        self.build_main_wall(game_state, 13)
 
         """
         Then build additional defenses.
@@ -79,14 +79,14 @@ class AlgoStrategy(gamelib.AlgoCore):
         self.deploy_attackers(game_state)
 
 
-    def build_main_wall(self, game_state):
+    def build_main_wall(self, game_state, y):
         """
         use Filter firewalls to build main wall
         """
         
         for x in range(7,21):
-            if game_state.can_spawn(FILTER, [x, 13]) and not game_state.contains_stationary_unit([x,14]):
-                game_state.attempt_spawn(FILTER, [x,13])
+            if game_state.can_spawn(FILTER, [x, y]) and not game_state.contains_stationary_unit([x,14]):
+                game_state.attempt_spawn(FILTER, [x,y])
                 if game_state.turn_number != 0 and x > 17:
                     RIGHT_SIDE_EMERGENCY = 1
 #add 21,11 DEF?
@@ -111,9 +111,12 @@ class AlgoStrategy(gamelib.AlgoCore):
         #algo not effective enough.. try sth. else
         
         if len(game_state.get_attackers([2,13], 0)) > 1 and game_state.can_spawn(EMP, [6,7]):
-                game_state.attempt_spawn(EMP, [6,7])
+            for location in game_state.find_path_to_edge([6,7],game_state.game_map.TOP_RIGHT):
+                if location[1] == 13 and location[0] <= 7:
+                    game_state.attempt_spawn(EMP, [6,7])
+                    break
 
-        firewall_locations = [[5, 11],[6,11],[2,12]]
+        firewall_locations = [[5, 11],[6,11],[2,12],[2,11]]
         for location in firewall_locations:
             if game_state.can_spawn(ENCRYPTOR, location):
                 game_state.attempt_spawn(ENCRYPTOR, location)
@@ -140,6 +143,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                 game_state.attempt_spawn(ENCRYPTOR,[x,y])
             y -= 1
         
+        self.build_main_wall(game_state, 12)
+        
         all_locations = []
         for x in range(6,game_state.ARENA_SIZE):
             for y in range(math.floor(game_state.ARENA_SIZE / 2)):
@@ -149,6 +154,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         possible_locations = self.filter_blocked_locations(all_locations, game_state)
         
         while game_state.get_resource(game_state.CORES) >= game_state.type_cost(DESTRUCTOR) and len(possible_locations) > 3:
+            
             location_index = random.randint(0, len(possible_locations) - 1)
             if game_state.can_spawn(DESTRUCTOR, possible_locations[location_index]):
                 game_state.attempt_spawn(DESTRUCTOR,possible_locations[location_index])
@@ -156,11 +162,11 @@ class AlgoStrategy(gamelib.AlgoCore):
 
 
     def deploy_attackers(self, game_state):
-        
+        """
         if (game_state.turn_number == 0 and game_state.can_spawn(EMP, [25, 11])) or RIGHT_SIDE_EMERGENCY:
             game_state.attempt_spawn(EMP, [25, 11])
         
-        """
+        
         if game_state.number_affordable(PING) > 4 and game_state.can_spawn(SCRAMBLER, [5,8]):
 	        game_state.attempt_spawn(SCRAMBLER,[5,8])
         """
