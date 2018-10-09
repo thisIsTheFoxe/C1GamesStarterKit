@@ -66,7 +66,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
             Build the main wall for defense and add encryprors for the first attacs.
         """
-        self.build_main_wall(game_state, 13)
+        self.build_main_wall(game_state, 11)
 
         """
         Then build additional defenses.
@@ -84,8 +84,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         use Filter firewalls to build main wall
         """
         
-        for x in range(7,21):
-            if game_state.can_spawn(FILTER, [x, y]) and not game_state.contains_stationary_unit([x,14]):
+        for x in range(7,20):
+            if game_state.can_spawn(FILTER, [x, y]):
                 game_state.attempt_spawn(FILTER, [x,y])
                 if game_state.turn_number != 0 and x > 17:
                     RIGHT_SIDE_EMERGENCY = 1
@@ -98,8 +98,8 @@ class AlgoStrategy(gamelib.AlgoCore):
     
     def build_defences(self, game_state):
         #Add some detrructors l and r
-        destr = [[5,12],[23,12],[15,6]]
-        destr2 = [[4,12],[24,12],[14,6]]
+        destr = [[5,12],[23,12],[16,8]]
+        destr2 = [[4,12],[24,12],[15,8]]
         for ix in range(0,len(destr)):
             if game_state.can_spawn(DESTRUCTOR, destr[ix]):
                 game_state.attempt_spawn(DESTRUCTOR, destr[ix])
@@ -116,7 +116,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                     game_state.attempt_spawn(EMP, [6,7])
                     break
 
-        firewall_locations = [[5, 11],[6,11],[2,12],[2,11]]
+        firewall_locations = [[5, 11],[6,11],[0,13],[2,12],[2,11]]
         for location in firewall_locations:
             if game_state.can_spawn(ENCRYPTOR, location):
                 game_state.attempt_spawn(ENCRYPTOR, location)
@@ -127,14 +127,14 @@ class AlgoStrategy(gamelib.AlgoCore):
         if (game_state.get_resource(game_state.CORES) <= 0):
             return
         
-        for x in range(27,5,-1):
+        for x in range(27,18,-1):
             #gamelib.debug_write('that one strange for loop...')
-            if game_state.can_spawn(FILTER, [x,13]) and not game_state.contains_stationary_unit([x,14]):
-                game_state.attempt_spawn(FILTER, [x,13])
+            if game_state.can_spawn(FILTER, [x,12]):
+                game_state.attempt_spawn(FILTER, [x,12])
         x = 6
         y = 10
 	
-        while game_state.get_resource(game_state.CORES) >= game_state.type_cost(ENCRYPTOR) and y > 6:
+        while game_state.get_resource(game_state.CORES) >= game_state.type_cost(ENCRYPTOR) and y > 8:
             #gamelib.debug_write('resources for ENCRYPRORS...')
             if game_state.can_spawn(ENCRYPTOR, [x,y]):
                 game_state.attempt_spawn(ENCRYPTOR, [x,y])
@@ -143,7 +143,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                 game_state.attempt_spawn(ENCRYPTOR,[x,y])
             y -= 1
         
-        self.build_main_wall(game_state, 12)
+        self.build_main_wall(game_state, 10)
         
         all_locations = []
         for x in range(6,game_state.ARENA_SIZE):

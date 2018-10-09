@@ -1,6 +1,6 @@
 {
   "debug":{
-    "printMapString":false,
+    "printMapString":true,
     "printTStrings":false,
     "printActStrings":false,
     "printHitStrings":false,
